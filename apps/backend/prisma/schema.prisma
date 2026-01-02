@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String
+  photoUrl    String?
+  firebaseUid String   @unique
+
+  // Preferences
+  operatingSystem String? // "windows", "mac", "linux"
+  onboardingCompleted Boolean @default(false)
+
+  // Progress
+  currentJourney Int @default(1) // 1, 2, 3
+  currentMission Int @default(1) // 1-14
+  totalPoints    Int @default(0)
+
+  // Relations
+  progress     MissionProgress[]
+  quizAttempts QuizAttempt[]
+  certificates Certificate[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Journey {
+  id          Int       @id // 1, 2, 3
+  name        String    // "Básico", "Intermedio", "Avanzado"
+  title       String    // "Tu Asistente IA en 4 Horas"
+  description String
+  color       String    // Color theme
+  icon        String    // Icon name
+
+  requiredMissions Int // Missions needed for certificate
+
+  missions Mission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Mission {
+  id        Int     @id
+  journeyId Int
+  journey   Journey @relation(fields: [journeyId], references: [id])
+
+  number      Int    // Number within journey (1-4, 1-6, 1-4)
+  title       String // "Tu asistente responde"
+  subtitle    String // Short description
+  description String @db.Text
+
+  // Content
+  objectives String[] // List of objectives
+  duration   Int      // Estimated minutes
+  difficulty String   // "beginner", "intermediate", "advanced"
+
+  // Visible result
+  resultTitle String
+  resultDesc  String
+  showOffText String
+
+  // Educational content (Markdown or structured JSON)
+  content String @db.Text
+
+  // Resources
+  videoUrl String?
+  repoUrl  String?
+
+  // Points awarded on completion
+  points Int @default(100)
+
+  // Order
+  order Int
+
+  // Relations
+  quizQuestions QuizQuestion[]
+  cards         Card[]
+  progress      MissionProgress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Card {
+  id        String  @id @default(cuid())
+  missionId Int
+  mission   Mission @relation(fields: [missionId], references: [id])
+
+  type    String // "rescue", "concept", "comparison", "architecture", "command", "decision"
+  icon    String // Emoji or icon name
+  title   String
+  content String @db.Text
+
+  order Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model QuizQuestion {
+  id        String  @id @default(cuid())
+  missionId Int
+  mission   Mission @relation(fields: [missionId], references: [id])
+
+  question    String  @db.Text
+  options     Json    // Array of {id, text}
+  correctId   String  // ID of correct option
+  explanation String? @db.Text
+
+  order Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MissionProgress {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  missionId Int
+  mission   Mission @relation(fields: [missionId], references: [id])
+
+  status      String    @default("locked") // "locked", "available", "in_progress", "completed"
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  // Quiz
+  quizPassed Boolean @default(false)
+  quizScore  Int?
+
+  @@unique([userId, missionId])
+}
+
+model QuizAttempt {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id])
+  missionId Int
+
+  attemptNumber Int
+  score         Int
+  passed        Boolean
+  answers       Json // {questionId: answerId}
+
+  createdAt DateTime @default(now())
+}
+
+model Certificate {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id])
+  journeyId Int
+
+  certificateNumber String   @unique
+  issuedAt          DateTime @default(now())
+  pdfUrl            String?
+
+  verificationCode String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
