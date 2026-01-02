@@ -112,17 +112,17 @@ O en el archivo `.env`, asegúrate de que esté en una sola línea con `\n` esca
 
 ```env
 # Database
-DATABASE_URL=postgresql://vibe:vibe123@localhost:5432/vibe_academy
+DATABASE_URL=postgresql://vibe:vibe123@localhost:5434/vibe_academy
 
 # Firebase (sin Admin SDK)
-FIREBASE_PROJECT_ID=fullstack-ia-generativa
+FIREBASE_PROJECT_ID=tu-proyecto-firebase
 
 # Firebase Client (Frontend)
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyBgi4awTzsEGKu9Vn6YfYDqJct631FzpTM
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=fullstack-ia-generativa.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=fullstack-ia-generativa
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSy...tu-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=tu-proyecto.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=tu-proyecto-firebase
 
 # App URLs
-BACKEND_URL=http://localhost:3001
-FRONTEND_URL=http://localhost:3000
+BACKEND_URL=http://localhost:3006
+FRONTEND_URL=http://localhost:3010
 ```
